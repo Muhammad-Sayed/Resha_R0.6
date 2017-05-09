@@ -28,30 +28,17 @@ void setup()
 
   digitalWrite(EN, LOW);
   digitalWrite(EN_Z, LOW);
-
-  digitalWrite(X_DIR, LOW);
-  digitalWrite(Y_DIR, LOW);
-  digitalWrite(Z_DIR, LOW);
 }
 
 void loop() 
 {
-  if(!digitalRead(X_STOP))
-  {
-    digitalWrite(X_STEP, !digitalRead(X_STEP));
-    Serial1.println("Stepping X");
-  }
-  if(!digitalRead(Y_STOP))
-  {
-    digitalWrite(Y_STEP, !digitalRead(Y_STEP));
-    Serial1.println("Stepping Y");
-  }
-  if(!digitalRead(Z_STOP))
-  {
-    digitalWrite(Z_STEP, !digitalRead(Z_STEP));
-    Serial1.println("Stepping Z");
-  }
-  delay(5);
+  digitalWrite(X_DIR, digitalRead(X_STOP));
+  digitalWrite(X_STEP, !digitalRead(X_STEP));
+  digitalWrite(Y_DIR, digitalRead(Y_STOP));
+  digitalWrite(Y_STEP, !digitalRead(Y_STEP));
+  digitalWrite(Z_DIR, digitalRead(Z_STOP));
+  digitalWrite(Z_STEP, !digitalRead(Z_STEP));
+  delay(1);
   
 //  Serial1.println("Hello World!");
 //  delay(1500);
