@@ -93,6 +93,7 @@ WIRE               ?= 1
 
 HARDWARE_VARIANT = arduino
 MCU              = atmega644p
+BOARD_TAG    = atmega644p
 
 # Be sure to regenerate speed_lookuptable.h with create_speed_lookuptable.py
 # if you are setting this to something other than 16MHz
