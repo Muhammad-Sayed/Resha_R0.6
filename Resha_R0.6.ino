@@ -26,8 +26,8 @@ void setup()
   pinMode(Y_STOP, INPUT_PULLUP);
   pinMode(Z_STOP, INPUT_PULLUP);
 
-  digitalWrite(EN, LOW);
-  digitalWrite(EN_Z, LOW);
+  digitalWrite(EN, HIGH);
+  digitalWrite(EN_Z, HIGH);
 }
 
 void loop() 
@@ -40,8 +40,8 @@ void loop()
   digitalWrite(Z_STEP, !digitalRead(Z_STEP));
   delay(1);
   
-//  Serial1.println("Hello World!");
-//  delay(1500);
+  Serial1.println("Hello World! I got the DTR working finally");
+  delay(500);
 //  if(Serial.available()) {
 //    int inByte = Serial.read();
 //    Serial1.print("I got ");
