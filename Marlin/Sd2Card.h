@@ -1,30 +1,21 @@
-/**
- * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+/* Arduino Sd2Card Library
+ * Copyright (C) 2009 by William Greiman
  *
- * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * This file is part of the Arduino Sd2Card Library
  *
- * This program is free software: you can redistribute it and/or modify
+ * This Library is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
+ * This Library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- */
-
-/**
- * Arduino Sd2Card Library
- * Copyright (C) 2009 by William Greiman
- *
- * This file is part of the Arduino Sd2Card Library
+ * along with the Arduino Sd2Card Library.  If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include "Marlin.h"
@@ -37,6 +28,7 @@
  * \brief Sd2Card class for V2 SD/SDHC cards
  */
 #include "SdFatConfig.h"
+#include "Sd2PinMap.h"
 #include "SdInfo.h"
 //------------------------------------------------------------------------------
 // SPI speed is F_CPU/2^(1 + index), 0 <= index <= 6
@@ -136,25 +128,25 @@ uint8_t const SD_CARD_TYPE_SDHC = 3;
 #if DISABLED(SOFTWARE_SPI)
   // hardware pin defs
   /** The default chip select pin for the SD card is SS. */
-  #define SD_CHIP_SELECT_PIN SS_PIN
+  uint8_t const  SD_CHIP_SELECT_PIN = SS_PIN;
   // The following three pins must not be redefined for hardware SPI.
   /** SPI Master Out Slave In pin */
-  #define SPI_MOSI_PIN MOSI_PIN
+  uint8_t const  SPI_MOSI_PIN = MOSI_PIN;
   /** SPI Master In Slave Out pin */
-  #define SPI_MISO_PIN MISO_PIN
+  uint8_t const  SPI_MISO_PIN = MISO_PIN;
   /** SPI Clock pin */
-  #define SPI_SCK_PIN SCK_PIN
+  uint8_t const  SPI_SCK_PIN = SCK_PIN;
 
 #else  // SOFTWARE_SPI
 
   /** SPI chip select pin */
-  #define SD_CHIP_SELECT_PIN SOFT_SPI_CS_PIN
+  uint8_t const SD_CHIP_SELECT_PIN = SOFT_SPI_CS_PIN;
   /** SPI Master Out Slave In pin */
-  #define SPI_MOSI_PIN SOFT_SPI_MOSI_PIN
+  uint8_t const SPI_MOSI_PIN = SOFT_SPI_MOSI_PIN;
   /** SPI Master In Slave Out pin */
-  #define SPI_MISO_PIN SOFT_SPI_MISO_PIN
+  uint8_t const SPI_MISO_PIN = SOFT_SPI_MISO_PIN;
   /** SPI Clock pin */
-  #define SPI_SCK_PIN SOFT_SPI_SCK_PIN
+  uint8_t const SPI_SCK_PIN = SOFT_SPI_SCK_PIN;
 #endif  // SOFTWARE_SPI
 //------------------------------------------------------------------------------
 /**

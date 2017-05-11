@@ -1,28 +1,6 @@
-/**
- * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- *
- * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- */
-
 #include "qr_solve.h"
 
-#if ENABLED(AUTO_BED_LEVELING_LINEAR)
+#if ENABLED(AUTO_BED_LEVELING_GRID)
 
 #include <stdlib.h>
 #include <math.h>
@@ -32,7 +10,7 @@
 int i4_min(int i1, int i2)
 
 /******************************************************************************/
-/**
+/*
   Purpose:
 
     I4_MIN returns the smaller of two I4's.
@@ -59,10 +37,10 @@ int i4_min(int i1, int i2)
   return (i1 < i2) ? i1 : i2;
 }
 
-float r8_epsilon(void)
+double r8_epsilon(void)
 
 /******************************************************************************/
-/**
+/*
   Purpose:
 
     R8_EPSILON returns the R8 round off unit.
@@ -89,17 +67,17 @@ float r8_epsilon(void)
 
   Parameters:
 
-    Output, float R8_EPSILON, the R8 round-off unit.
+    Output, double R8_EPSILON, the R8 round-off unit.
 */
 {
-  const float value = 2.220446049250313E-016;
+  const double value = 2.220446049250313E-016;
   return value;
 }
 
-float r8_max(float x, float y)
+double r8_max(double x, double y)
 
 /******************************************************************************/
-/**
+/*
   Purpose:
 
     R8_MAX returns the maximum of two R8's.
@@ -118,18 +96,18 @@ float r8_max(float x, float y)
 
   Parameters:
 
-    Input, float X, Y, the quantities to compare.
+    Input, double X, Y, the quantities to compare.
 
-    Output, float R8_MAX, the maximum of X and Y.
+    Output, double R8_MAX, the maximum of X and Y.
 */
 {
   return (y < x) ? x : y;
 }
 
-float r8_abs(float x)
+double r8_abs(double x)
 
 /******************************************************************************/
-/**
+/*
   Purpose:
 
     R8_ABS returns the absolute value of an R8.
@@ -148,18 +126,18 @@ float r8_abs(float x)
 
   Parameters:
 
-    Input, float X, the quantity whose absolute value is desired.
+    Input, double X, the quantity whose absolute value is desired.
 
-    Output, float R8_ABS, the absolute value of X.
+    Output, double R8_ABS, the absolute value of X.
 */
 {
   return (x < 0.0) ? -x : x;
 }
 
-float r8_sign(float x)
+double r8_sign(double x)
 
 /******************************************************************************/
-/**
+/*
   Purpose:
 
     R8_SIGN returns the sign of an R8.
@@ -178,18 +156,18 @@ float r8_sign(float x)
 
   Parameters:
 
-    Input, float X, the number whose sign is desired.
+    Input, double X, the number whose sign is desired.
 
-    Output, float R8_SIGN, the sign of X.
+    Output, double R8_SIGN, the sign of X.
 */
 {
   return (x < 0.0) ? -1.0 : 1.0;
 }
 
-float r8mat_amax(int m, int n, float a[])
+double r8mat_amax(int m, int n, double a[])
 
 /******************************************************************************/
-/**
+/*
   Purpose:
 
     R8MAT_AMAX returns the maximum absolute value entry of an R8MAT.
@@ -217,24 +195,25 @@ float r8mat_amax(int m, int n, float a[])
 
     Input, int N, the number of columns in A.
 
-    Input, float A[M*N], the M by N matrix.
+    Input, double A[M*N], the M by N matrix.
 
-    Output, float R8MAT_AMAX, the maximum absolute value entry of A.
+    Output, double R8MAT_AMAX, the maximum absolute value entry of A.
 */
 {
-  float value = r8_abs(a[0 + 0 * m]);
+  double value = r8_abs(a[0 + 0 * m]);
   for (int j = 0; j < n; j++) {
     for (int i = 0; i < m; i++) {
-      NOLESS(value, r8_abs(a[i + j * m]));
+      if (value < r8_abs(a[i + j * m]))
+        value = r8_abs(a[i + j * m]);
     }
   }
   return value;
 }
 
-void r8mat_copy(float a2[], int m, int n, float a1[])
+void r8mat_copy(double a2[], int m, int n, double a1[])
 
 /******************************************************************************/
-/**
+/*
   Purpose:
 
     R8MAT_COPY_NEW copies one R8MAT to a "new" R8MAT.
@@ -260,9 +239,9 @@ void r8mat_copy(float a2[], int m, int n, float a1[])
 
     Input, int M, N, the number of rows and columns.
 
-    Input, float A1[M*N], the matrix to be copied.
+    Input, double A1[M*N], the matrix to be copied.
 
-    Output, float R8MAT_COPY_NEW[M*N], the copy of A1.
+    Output, double R8MAT_COPY_NEW[M*N], the copy of A1.
 */
 {
   for (int j = 0; j < n; j++) {
@@ -273,10 +252,10 @@ void r8mat_copy(float a2[], int m, int n, float a1[])
 
 /******************************************************************************/
 
-void daxpy(int n, float da, float dx[], int incx, float dy[], int incy)
+void daxpy(int n, double da, double dx[], int incx, double dy[], int incy)
 
 /******************************************************************************/
-/**
+/*
   Purpose:
 
     DAXPY computes constant times a vector plus a vector.
@@ -313,13 +292,13 @@ void daxpy(int n, float da, float dx[], int incx, float dy[], int incy)
 
     Input, int N, the number of elements in DX and DY.
 
-    Input, float DA, the multiplier of DX.
+    Input, double DA, the multiplier of DX.
 
-    Input, float DX[*], the first vector.
+    Input, double DX[*], the first vector.
 
     Input, int INCX, the increment between successive entries of DX.
 
-    Input/output, float DY[*], the second vector.
+    Input/output, double DY[*], the second vector.
     On output, DY[*] has been replaced by DY[*] + DA * DX[*].
 
     Input, int INCY, the increment between successive entries of DY.
@@ -328,7 +307,7 @@ void daxpy(int n, float da, float dx[], int incx, float dy[], int incy)
   if (n <= 0 || da == 0.0) return;
 
   int i, ix, iy, m;
-  /**
+  /*
     Code for unequal increments or equal increments
     not equal to 1.
   */
@@ -347,7 +326,7 @@ void daxpy(int n, float da, float dx[], int incx, float dy[], int incy)
       iy = iy + incy;
     }
   }
-  /**
+  /*
     Code for both increments equal to 1.
   */
   else {
@@ -364,10 +343,10 @@ void daxpy(int n, float da, float dx[], int incx, float dy[], int incy)
 }
 /******************************************************************************/
 
-float ddot(int n, float dx[], int incx, float dy[], int incy)
+double ddot(int n, double dx[], int incx, double dy[], int incy)
 
 /******************************************************************************/
-/**
+/*
   Purpose:
 
     DDOT forms the dot product of two vectors.
@@ -404,15 +383,15 @@ float ddot(int n, float dx[], int incx, float dy[], int incy)
 
     Input, int N, the number of entries in the vectors.
 
-    Input, float DX[*], the first vector.
+    Input, double DX[*], the first vector.
 
     Input, int INCX, the increment between successive entries in DX.
 
-    Input, float DY[*], the second vector.
+    Input, double DY[*], the second vector.
 
     Input, int INCY, the increment between successive entries in DY.
 
-    Output, float DDOT, the sum of the product of the corresponding
+    Output, double DDOT, the sum of the product of the corresponding
     entries of DX and DY.
 */
 {
@@ -420,9 +399,9 @@ float ddot(int n, float dx[], int incx, float dy[], int incy)
   if (n <= 0) return 0.0;
 
   int i, m;
-  float dtemp = 0.0;
+  double dtemp = 0.0;
 
-  /**
+  /*
     Code for unequal increments or equal increments
     not equal to 1.
   */
@@ -435,7 +414,7 @@ float ddot(int n, float dx[], int incx, float dy[], int incy)
       iy = iy + incy;
     }
   }
-  /**
+  /*
     Code for both increments equal to 1.
   */
   else {
@@ -454,10 +433,10 @@ float ddot(int n, float dx[], int incx, float dy[], int incy)
 }
 /******************************************************************************/
 
-float dnrm2(int n, float x[], int incx)
+double dnrm2(int n, double x[], int incx)
 
 /******************************************************************************/
-/**
+/*
   Purpose:
 
     DNRM2 returns the euclidean norm of a vector.
@@ -494,29 +473,28 @@ float dnrm2(int n, float x[], int incx)
 
     Input, int N, the number of entries in the vector.
 
-    Input, float X[*], the vector whose norm is to be computed.
+    Input, double X[*], the vector whose norm is to be computed.
 
     Input, int INCX, the increment between successive entries of X.
 
-    Output, float DNRM2, the Euclidean norm of X.
+    Output, double DNRM2, the Euclidean norm of X.
 */
 {
-  float norm;
+  double norm;
   if (n < 1 || incx < 1)
     norm = 0.0;
   else if (n == 1)
     norm = r8_abs(x[0]);
   else {
-    float scale = 0.0, ssq = 1.0;
+    double scale = 0.0, ssq = 1.0;
     int ix = 0;
     for (int i = 0; i < n; i++) {
       if (x[ix] != 0.0) {
-        float absxi = r8_abs(x[ix]);
+        double absxi = r8_abs(x[ix]);
         if (scale < absxi) {
           ssq = 1.0 + ssq * (scale / absxi) * (scale / absxi);
           scale = absxi;
-        }
-        else
+        } else
           ssq = ssq + (absxi / scale) * (absxi / scale);
       }
       ix += incx;
@@ -527,11 +505,11 @@ float dnrm2(int n, float x[], int incx)
 }
 /******************************************************************************/
 
-void dqrank(float a[], int lda, int m, int n, float tol, int* kr,
-            int jpvt[], float qraux[])
+void dqrank(double a[], int lda, int m, int n, double tol, int* kr,
+            int jpvt[], double qraux[])
 
 /******************************************************************************/
-/**
+/*
   Purpose:
 
     DQRANK computes the QR factorization of a rectangular matrix.
@@ -572,7 +550,7 @@ void dqrank(float a[], int lda, int m, int n, float tol, int* kr,
 
   Parameters:
 
-    Input/output, float A[LDA*N].  On input, the matrix whose
+    Input/output, double A[LDA*N].  On input, the matrix whose
     decomposition is to be computed.  On output, the information from DQRDC.
     The triangular matrix R of the QR factorization is contained in the
     upper triangle and information needed to recover the orthogonal
@@ -585,7 +563,7 @@ void dqrank(float a[], int lda, int m, int n, float tol, int* kr,
 
     Input, int N, the number of columns of A.
 
-    Input, float TOL, a relative tolerance used to determine the
+    Input, double TOL, a relative tolerance used to determine the
     numerical rank.  The problem should be scaled so that all the elements
     of A have roughly the same absolute accuracy, EPS.  Then a reasonable
     value for TOL is roughly EPS divided by the magnitude of the largest
@@ -598,11 +576,11 @@ void dqrank(float a[], int lda, int m, int n, float tol, int* kr,
     independent to within the tolerance TOL and the remaining columns
     are linearly dependent.
 
-    Output, float QRAUX[N], will contain extra information defining
+    Output, double QRAUX[N], will contain extra information defining
     the QR factorization.
 */
 {
-  float work[n];
+  double work[n];
 
   for (int i = 0; i < n; i++)
     jpvt[i] = 0;
@@ -621,11 +599,11 @@ void dqrank(float a[], int lda, int m, int n, float tol, int* kr,
 }
 /******************************************************************************/
 
-void dqrdc(float a[], int lda, int n, int p, float qraux[], int jpvt[],
-           float work[], int job)
+void dqrdc(double a[], int lda, int n, int p, double qraux[], int jpvt[],
+           double work[], int job)
 
 /******************************************************************************/
-/**
+/*
   Purpose:
 
     DQRDC computes the QR factorization of a real rectangular matrix.
@@ -660,7 +638,7 @@ void dqrdc(float a[], int lda, int n, int p, float qraux[], int jpvt[],
 
   Parameters:
 
-    Input/output, float A(LDA,P).  On input, the N by P matrix
+    Input/output, double A(LDA,P).  On input, the N by P matrix
     whose decomposition is to be computed.  On output, A contains in
     its upper triangle the upper triangular matrix R of the QR
     factorization.  Below its diagonal A contains information from
@@ -676,7 +654,7 @@ void dqrdc(float a[], int lda, int n, int p, float qraux[], int jpvt[],
 
     Input, int P, the number of columns of the matrix A.
 
-    Output, float QRAUX[P], contains further information required
+    Output, double QRAUX[P], contains further information required
     to recover the orthogonal part of the decomposition.
 
     Input/output, integer JPVT[P].  On input, JPVT contains integers that
@@ -695,7 +673,7 @@ void dqrdc(float a[], int lda, int n, int p, float qraux[], int jpvt[],
     original matrix that has been interchanged into the K-th column, if
     pivoting was requested.
 
-    Workspace, float WORK[P].  WORK is not referenced if JOB == 0.
+    Workspace, double WORK[P].  WORK is not referenced if JOB == 0.
 
     Input, int JOB, initiates column pivoting.
     0, no pivoting is done.
@@ -706,10 +684,10 @@ void dqrdc(float a[], int lda, int n, int p, float qraux[], int jpvt[],
   int j;
   int lup;
   int maxj;
-  float maxnrm, nrmxl, t, tt;
+  double maxnrm, nrmxl, t, tt;
 
   int pl = 1, pu = 0;
-  /**
+  /*
     If pivoting is requested, rearrange the columns.
   */
   if (job != 0) {
@@ -738,19 +716,19 @@ void dqrdc(float a[], int lda, int n, int p, float qraux[], int jpvt[],
       }
     }
   }
-  /**
+  /*
     Compute the norms of the free columns.
   */
   for (j = pl; j <= pu; j++)
     qraux[j - 1] = dnrm2(n, a + 0 + (j - 1) * lda, 1);
   for (j = pl; j <= pu; j++)
     work[j - 1] = qraux[j - 1];
-  /**
+  /*
     Perform the Householder reduction of A.
   */
   lup = i4_min(n, p);
   for (int l = 1; l <= lup; l++) {
-    /**
+    /*
       Bring the column of largest norm into the pivot position.
     */
     if (pl <= l && l < pu) {
@@ -771,7 +749,7 @@ void dqrdc(float a[], int lda, int n, int p, float qraux[], int jpvt[],
         jpvt[l - 1] = jp;
       }
     }
-    /**
+    /*
       Compute the Householder transformation for column L.
     */
     qraux[l - 1] = 0.0;
@@ -782,7 +760,7 @@ void dqrdc(float a[], int lda, int n, int p, float qraux[], int jpvt[],
           nrmxl = nrmxl * r8_sign(a[l - 1 + (l - 1) * lda]);
         dscal(n - l + 1, 1.0 / nrmxl, a + l - 1 + (l - 1)*lda, 1);
         a[l - 1 + (l - 1)*lda] = 1.0 + a[l - 1 + (l - 1) * lda];
-        /**
+        /*
           Apply the transformation to the remaining columns, updating the norms.
         */
         for (j = l + 1; j <= p; j++) {
@@ -804,7 +782,7 @@ void dqrdc(float a[], int lda, int n, int p, float qraux[], int jpvt[],
             }
           }
         }
-        /**
+        /*
           Save the transformation.
         */
         qraux[l - 1] = a[l - 1 + (l - 1) * lda];
@@ -815,11 +793,11 @@ void dqrdc(float a[], int lda, int n, int p, float qraux[], int jpvt[],
 }
 /******************************************************************************/
 
-int dqrls(float a[], int lda, int m, int n, float tol, int* kr, float b[],
-          float x[], float rsd[], int jpvt[], float qraux[], int itask)
+int dqrls(double a[], int lda, int m, int n, double tol, int* kr, double b[],
+          double x[], double rsd[], int jpvt[], double qraux[], int itask)
 
 /******************************************************************************/
-/**
+/*
   Purpose:
 
     DQRLS factors and solves a linear system in the least squares sense.
@@ -871,7 +849,7 @@ int dqrls(float a[], int lda, int m, int n, float tol, int* kr, float b[],
 
   Parameters:
 
-    Input/output, float A[LDA*N], an M by N matrix.
+    Input/output, double A[LDA*N], an M by N matrix.
     On input, the matrix whose decomposition is to be computed.
     In a least squares data fitting problem, A(I,J) is the
     value of the J-th basis (model) function at the I-th data point.
@@ -886,7 +864,7 @@ int dqrls(float a[], int lda, int m, int n, float tol, int* kr, float b[],
 
     Input, int N, the number of columns of A.
 
-    Input, float TOL, a relative tolerance used to determine the
+    Input, double TOL, a relative tolerance used to determine the
     numerical rank.  The problem should be scaled so that all the elements
     of A have roughly the same absolute accuracy EPS.  Then a reasonable
     value for TOL is roughly EPS divided by the magnitude of the largest
@@ -894,12 +872,12 @@ int dqrls(float a[], int lda, int m, int n, float tol, int* kr, float b[],
 
     Output, int *KR, the numerical rank.
 
-    Input, float B[M], the right hand side of the linear system.
+    Input, double B[M], the right hand side of the linear system.
 
-    Output, float X[N], a least squares solution to the linear
+    Output, double X[N], a least squares solution to the linear
     system.
 
-    Output, float RSD[M], the residual, B - A*X.  RSD may
+    Output, double RSD[M], the residual, B - A*X.  RSD may
     overwrite B.
 
     Workspace, int JPVT[N], required if ITASK = 1.
@@ -909,7 +887,7 @@ int dqrls(float a[], int lda, int m, int n, float tol, int* kr, float b[],
     of the condition number of the matrix of independent columns,
     and of R.  This estimate will be <= 1/TOL.
 
-    Workspace, float QRAUX[N], required if ITASK = 1.
+    Workspace, double QRAUX[N], required if ITASK = 1.
 
     Input, int ITASK.
     1, DQRLS factors the matrix A and solves the least squares problem.
@@ -949,12 +927,12 @@ int dqrls(float a[], int lda, int m, int n, float tol, int* kr, float b[],
   }
 
   ind = 0;
-  /**
+  /*
     Factor the matrix.
   */
   if (itask == 1)
     dqrank(a, lda, m, n, tol, kr, jpvt, qraux);
-  /**
+  /*
     Solve the least-squares problem.
   */
   dqrlss(a, lda, m, n, *kr, b, x, rsd, jpvt, qraux);
@@ -962,11 +940,11 @@ int dqrls(float a[], int lda, int m, int n, float tol, int* kr, float b[],
 }
 /******************************************************************************/
 
-void dqrlss(float a[], int lda, int m, int n, int kr, float b[], float x[],
-            float rsd[], int jpvt[], float qraux[])
+void dqrlss(double a[], int lda, int m, int n, int kr, double b[], double x[],
+            double rsd[], int jpvt[], double qraux[])
 
 /******************************************************************************/
-/**
+/*
   Purpose:
 
     DQRLSS solves a linear system in a least squares sense.
@@ -1004,7 +982,7 @@ void dqrlss(float a[], int lda, int m, int n, int kr, float b[], float x[],
 
   Parameters:
 
-    Input, float A[LDA*N], the QR factorization information
+    Input, double A[LDA*N], the QR factorization information
     from DQRANK.  The triangular matrix R of the QR factorization is
     contained in the upper triangle and information needed to recover
     the orthogonal matrix Q is stored below the diagonal in A and in
@@ -1019,12 +997,12 @@ void dqrlss(float a[], int lda, int m, int n, int kr, float b[], float x[],
 
     Input, int KR, the rank of the matrix, as estimated by DQRANK.
 
-    Input, float B[M], the right hand side of the linear system.
+    Input, double B[M], the right hand side of the linear system.
 
-    Output, float X[N], a least squares solution to the
+    Output, double X[N], a least squares solution to the
     linear system.
 
-    Output, float RSD[M], the residual, B - A*X.  RSD may
+    Output, double RSD[M], the residual, B - A*X.  RSD may
     overwrite B.
 
     Input, int JPVT[N], the pivot information from DQRANK.
@@ -1032,7 +1010,7 @@ void dqrlss(float a[], int lda, int m, int n, int kr, float b[], float x[],
     independent to within the tolerance TOL and the remaining columns
     are linearly dependent.
 
-    Input, float QRAUX[N], auxiliary information from DQRANK
+    Input, double QRAUX[N], auxiliary information from DQRANK
     defining the QR factorization.
 */
 {
@@ -1041,11 +1019,11 @@ void dqrlss(float a[], int lda, int m, int n, int kr, float b[], float x[],
   int j;
   int job;
   int k;
-  float t;
+  double t;
 
   if (kr != 0) {
     job = 110;
-    info = dqrsl(a, lda, m, kr, qraux, b, rsd, rsd, x, rsd, rsd, job); UNUSED(info);
+    info = dqrsl(a, lda, m, kr, qraux, b, rsd, rsd, x, rsd, rsd, job);
   }
 
   for (i = 0; i < n; i++)
@@ -1071,11 +1049,11 @@ void dqrlss(float a[], int lda, int m, int n, int kr, float b[], float x[],
 }
 /******************************************************************************/
 
-int dqrsl(float a[], int lda, int n, int k, float qraux[], float y[],
-          float qy[], float qty[], float b[], float rsd[], float ab[], int job)
+int dqrsl(double a[], int lda, int n, int k, double qraux[], double y[],
+          double qy[], double qty[], double b[], double rsd[], double ab[], int job)
 
 /******************************************************************************/
-/**
+/*
   Purpose:
 
     DQRSL computes transformations, projections, and least squares solutions.
@@ -1158,7 +1136,7 @@ int dqrsl(float a[], int lda, int n, int k, float qraux[], float y[],
 
   Parameters:
 
-    Input, float A[LDA*P], contains the output of DQRDC.
+    Input, double A[LDA*P], contains the output of DQRDC.
 
     Input, int LDA, the leading dimension of the array A.
 
@@ -1169,26 +1147,26 @@ int dqrsl(float a[], int lda, int n, int k, float qraux[], float y[],
     must not be greater than min(N,P), where P is the same as in the
     calling sequence to DQRDC.
 
-    Input, float QRAUX[P], the auxiliary output from DQRDC.
+    Input, double QRAUX[P], the auxiliary output from DQRDC.
 
-    Input, float Y[N], a vector to be manipulated by DQRSL.
+    Input, double Y[N], a vector to be manipulated by DQRSL.
 
-    Output, float QY[N], contains Q * Y, if requested.
+    Output, double QY[N], contains Q * Y, if requested.
 
-    Output, float QTY[N], contains Q' * Y, if requested.
+    Output, double QTY[N], contains Q' * Y, if requested.
 
-    Output, float B[K], the solution of the least squares problem
+    Output, double B[K], the solution of the least squares problem
       minimize norm2 ( Y - AK * B),
     if its computation has been requested.  Note that if pivoting was
     requested in DQRDC, the J-th component of B will be associated with
     column JPVT(J) of the original matrix A that was input into DQRDC.
 
-    Output, float RSD[N], the least squares residual Y - AK * B,
+    Output, double RSD[N], the least squares residual Y - AK * B,
     if its computation has been requested.  RSD is also the orthogonal
     projection of Y onto the orthogonal complement of the column space
     of AK.
 
-    Output, float AB[N], the least squares approximation Ak * B,
+    Output, double AB[N], the least squares approximation Ak * B,
     if its computation has been requested.  AB is also the orthogonal
     projection of Y onto the column space of A.
 
@@ -1220,14 +1198,14 @@ int dqrsl(float a[], int lda, int n, int k, float qraux[], float y[],
   int j;
   int jj;
   int ju;
-  float t;
-  float temp;
-  /**
+  double t;
+  double temp;
+  /*
     Set INFO flag.
   */
   info = 0;
 
-  /**
+  /*
     Determine what is to be computed.
   */
   cqy  = ( job / 10000        != 0);
@@ -1237,7 +1215,7 @@ int dqrsl(float a[], int lda, int n, int k, float qraux[], float y[],
   cab  = ((job %    10)       != 0);
   ju = i4_min(k, n - 1);
 
-  /**
+  /*
     Special action when N = 1.
   */
   if (ju == 0) {
@@ -1257,7 +1235,7 @@ int dqrsl(float a[], int lda, int n, int k, float qraux[], float y[],
       rsd[0] = 0.0;
     return info;
   }
-  /**
+  /*
     Set up to compute QY or QTY.
   */
   if (cqy) {
@@ -1268,7 +1246,7 @@ int dqrsl(float a[], int lda, int n, int k, float qraux[], float y[],
     for (i = 1; i <= n; i++)
       qty[i - 1] = y[i - 1];
   }
-  /**
+  /*
     Compute QY.
   */
   if (cqy) {
@@ -1283,7 +1261,7 @@ int dqrsl(float a[], int lda, int n, int k, float qraux[], float y[],
       }
     }
   }
-  /**
+  /*
     Compute Q'*Y.
   */
   if (cqty) {
@@ -1297,7 +1275,7 @@ int dqrsl(float a[], int lda, int n, int k, float qraux[], float y[],
       }
     }
   }
-  /**
+  /*
     Set up to compute B, RSD, or AB.
   */
   if (cb) {
@@ -1320,7 +1298,7 @@ int dqrsl(float a[], int lda, int n, int k, float qraux[], float y[],
     for (i = 1; i <= k; i++)
       rsd[i - 1] = 0.0;
   }
-  /**
+  /*
     Compute B.
   */
   if (cb) {
@@ -1337,7 +1315,7 @@ int dqrsl(float a[], int lda, int n, int k, float qraux[], float y[],
       }
     }
   }
-  /**
+  /*
     Compute RSD or AB as required.
   */
   if (cr || cab) {
@@ -1366,10 +1344,10 @@ int dqrsl(float a[], int lda, int n, int k, float qraux[], float y[],
 
 /******************************************************************************/
 
-void dscal(int n, float sa, float x[], int incx)
+void dscal(int n, double sa, double x[], int incx)
 
 /******************************************************************************/
-/**
+/*
   Purpose:
 
     DSCAL scales a vector by a constant.
@@ -1402,9 +1380,9 @@ void dscal(int n, float sa, float x[], int incx)
 
     Input, int N, the number of entries in the vector.
 
-    Input, float SA, the multiplier.
+    Input, double SA, the multiplier.
 
-    Input/output, float X[*], the vector to be scaled.
+    Input/output, double X[*], the vector to be scaled.
 
     Input, int INCX, the increment between successive entries of X.
 */
@@ -1426,8 +1404,7 @@ void dscal(int n, float sa, float x[], int incx)
       x[i + 3] = sa * x[i + 3];
       x[i + 4] = sa * x[i + 4];
     }
-  }
-  else {
+  } else {
     if (0 <= incx)
       ix = 0;
     else
@@ -1441,10 +1418,10 @@ void dscal(int n, float sa, float x[], int incx)
 /******************************************************************************/
 
 
-void dswap(int n, float x[], int incx, float y[], int incy)
+void dswap(int n, double x[], int incx, double y[], int incy)
 
 /******************************************************************************/
-/**
+/*
   Purpose:
 
     DSWAP interchanges two vectors.
@@ -1477,11 +1454,11 @@ void dswap(int n, float x[], int incx, float y[], int incy)
 
     Input, int N, the number of entries in the vectors.
 
-    Input/output, float X[*], one of the vectors to swap.
+    Input/output, double X[*], one of the vectors to swap.
 
     Input, int INCX, the increment between successive entries of X.
 
-    Input/output, float Y[*], one of the vectors to swap.
+    Input/output, double Y[*], one of the vectors to swap.
 
     Input, int INCY, the increment between successive elements of Y.
 */
@@ -1489,7 +1466,7 @@ void dswap(int n, float x[], int incx, float y[], int incy)
   if (n <= 0) return;
 
   int i, ix, iy, m;
-  float temp;
+  double temp;
 
   if (incx == 1 && incy == 1) {
     m = n % 3;
@@ -1509,10 +1486,15 @@ void dswap(int n, float x[], int incx, float y[], int incy)
       x[i + 2] = y[i + 2];
       y[i + 2] = temp;
     }
-  }
-  else {
-    ix = (incx >= 0) ? 0 : (-n + 1) * incx;
-    iy = (incy >= 0) ? 0 : (-n + 1) * incy;
+  } else {
+    if (0 <= incx)
+      ix = 0;
+    else
+      ix = (- n + 1) * incx;
+    if (0 <= incy)
+      iy = 0;
+    else
+      iy = (- n + 1) * incy;
     for (i = 0; i < n; i++) {
       temp = x[ix];
       x[ix] = y[iy];
@@ -1526,10 +1508,10 @@ void dswap(int n, float x[], int incx, float y[], int incy)
 
 /******************************************************************************/
 
-void qr_solve(float x[], int m, int n, float a[], float b[])
+void qr_solve(double x[], int m, int n, double a[], double b[])
 
 /******************************************************************************/
-/**
+/*
   Purpose:
 
     QR_SOLVE solves a linear system in the least squares sense.
@@ -1569,14 +1551,14 @@ void qr_solve(float x[], int m, int n, float a[], float b[])
 
     Input, int N, the number of columns of A.
 
-    Input, float A[M*N], the matrix.
+    Input, double A[M*N], the matrix.
 
-    Input, float B[M], the right hand side.
+    Input, double B[M], the right hand side.
 
-    Output, float QR_SOLVE[N], the least squares solution.
+    Output, double QR_SOLVE[N], the least squares solution.
 */
 {
-  float a_qr[n * m], qraux[n], r[m], tol;
+  double a_qr[n * m], qraux[n], r[m], tol;
   int ind, itask, jpvt[n], kr, lda;
 
   r8mat_copy(a_qr, m, n, a);
@@ -1584,7 +1566,7 @@ void qr_solve(float x[], int m, int n, float a[], float b[])
   tol = r8_epsilon() / r8mat_amax(m, n, a_qr);
   itask = 1;
 
-  ind = dqrls(a_qr, lda, m, n, tol, &kr, b, x, r, jpvt, qraux, itask); UNUSED(ind);
+  ind = dqrls(a_qr, lda, m, n, tol, &kr, b, x, r, jpvt, qraux, itask);
 }
 /******************************************************************************/
 
