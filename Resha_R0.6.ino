@@ -40,15 +40,15 @@ void loop()
   digitalWrite(Z_STEP, !digitalRead(Z_STEP));
   delay(1);
   
-  Serial1.println("Hello World! I got the DTR working finally");
+  Serial1.println("Hello World! From Pi Zero W");
   delay(500);
-//  if(Serial.available()) {
-//    int inByte = Serial.read();
-//    Serial1.print("I got ");
-//    while(Serial.available()) {
-//      Serial1.write(inByte);
-//    }
-//    Serial1.println(" ");
-//    delay(1000);
-//  }
+  if(Serial1.available()) {
+    Serial1.print("I got ");
+    while(Serial1.available()) {
+      int inByte = Serial1.read();
+      Serial1.write(inByte);
+    }
+    Serial1.println(" ");
+    delay(500);
+  }
 }
