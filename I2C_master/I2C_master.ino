@@ -26,6 +26,6 @@ void loop() {
 //  }
   byte highbyte = Wire.read();
   byte lowbyte = Wire.read();
-  int tempDeg = (highbyte<<8) + lowbyte; //make those bytes back into an int
+  int tempDeg = (highbyte<<8) | lowbyte; //make those bytes back into an int
   Serial1.println(tempDeg);
 }
