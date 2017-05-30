@@ -19,9 +19,13 @@ void loop() {
 
   delay(2500);
   
-  Wire.requestFrom(61, 1);    // request 6 bytes from slave device #8
-  while (Wire.available()) { // slave may send less than requested
-    char c = Wire.read(); // receive a byte as character
-    Serial1.print(c);         // print the character
-  }
+  Wire.requestFrom(61, 2);    // request 6 bytes from slave device #8
+//  while (Wire.available()) { // slave may send less than requested
+//    char c = Wire.read(); // receive a byte as character
+//    Serial1.print(c);         // print the character
+//  }
+  byte highbyte = Wire.read();
+  byte lowbyte = Wire.read();
+  int tempDeg = (highbyte<<8) + lowbyte; //make those bytes back into an int
+  Serial1.println(tempDeg);
 }
